@@ -5,49 +5,6 @@ from google.auth.transport.requests import Request
 import os
 import pickle
 
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-
-# here enter the id of your google sheet
-SAMPLE_SPREADSHEET_ID_input = '189UzdG5vAlmprVxlSmewp-T7vfPfUPl6vIyWf4SR5xk'
-SAMPLE_RANGE_NAME = 'A:H'  # Specify the range A to H to get all columns
-
-def main():
-    global values_input, service
-    creds = None
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)  # here enter the name of your downloaded JSON file
-            creds = flow.run_local_server(port=0)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-
-    service = build('sheets', 'v4', credentials=creds)
-
-    # Call the Sheets API
-    sheet = service.spreadsheets()
-    result_input = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID_input,
-                                     range=SAMPLE_RANGE_NAME).execute()
-    values_input = result_input.get('values', [])
-    print(values_input)
-
-    # if not values_input and not values_expansion:
-    #     print('No data found.')
-
-main()
-
-# df = pd.DataFrame(values_input, columns=values_input[0])
-df = pd.DataFrame(values_input)
-df = df.fillna(0)
-
-
-# df.to_excel('./excel.xlsx', index=False, header=False)
-
 
 df_gold=df[(df['Medal']=='Gold') & (df['Sport']=='Gymnastics')]
 
@@ -87,11 +44,11 @@ def Create_Service(client_secret_file, api_service_name, api_version, *scopes):
         #return None
         
 # change 'my_json_file.json' by your downloaded JSON file.
-Create_Service('credentials.json', 'sheets', 'v4',['https://www.googleapis.com/auth/spreadsheets'])
+Create_Service('my_json_file.json', 'sheets', 'v4',['https://www.googleapis.com/auth/spreadsheets'])
     
 def Export_Data_To_Sheets():
     response_date = service.spreadsheets().values().update(
-        spreadsheetId=SAMPLE_SPREADSHEET_ID_input,
+        spreadsheetId=gsheetId,
         valueInputOption='RAW',
         range=SAMPLE_RANGE_NAME,
         body=dict(
